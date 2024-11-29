@@ -1,0 +1,9 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/home/dido/Documents/IST/Programação Concorrente/Projecto/PConc-Proj-A-2022-fichs/gd-examples",
+            "binaryPath": "/home/dido/Documents/IST/Programação Concorrente/Projecto/PConc-Proj-A-2022-fichs/gd-examples/generate-resize",
+            "binaryArgs": []
+        }
+    ]
+}

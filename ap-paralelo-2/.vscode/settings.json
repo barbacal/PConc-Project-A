@@ -1,0 +1,16 @@
+{
+    "makefile.launchConfigurations": [
+        {
+            "cwd": "/afs/ist.utl.pt/users/9/3/ist46793/Desktop/Projecto/PConc-Proj-A-2022-fichs/ap-paralelo-1",
+            "binaryPath": "/afs/ist.utl.pt/users/9/3/ist46793/Desktop/Projecto/PConc-Proj-A-2022-fichs/ap-paralelo-1/ap-paralelo-1",
+            "binaryArgs": [
+                "12"
+            ]
+        },
+        {
+            "cwd": "/afs/ist.utl.pt/users/9/3/ist46793/Desktop/Projecto/PConc-Proj-A-2022-fichs/ap-paralelo-1",
+            "binaryPath": "/afs/ist.utl.pt/users/9/3/ist46793/Desktop/Projecto/PConc-Proj-A-2022-fichs/ap-paralelo-1/ap-paralelo-1",
+            "binaryArgs": [" 13"]
+        }
+    ]
+}

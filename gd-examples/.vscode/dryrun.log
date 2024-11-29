@@ -1,0 +1,7 @@
+make all --dry-run --always-make --keep-going --print-directory
+make: Entering directory '/home/dido/Documents/IST/Programação Concorrente/Projecto/PConc-Proj-A-2022-fichs/gd-examples'
+gcc -Wall -pedantic generate-watermark.c image-lib.c -g -o generate-watermark -lgd
+gcc -Wall -pedantic generate-resize.c image-lib.c -g -o generate-resize -lgd
+gcc -Wall -pedantic generate-thumbnail.c image-lib.c -g -o generate-thumbnail -lgd
+make: Leaving directory '/home/dido/Documents/IST/Programação Concorrente/Projecto/PConc-Proj-A-2022-fichs/gd-examples'
+ 
