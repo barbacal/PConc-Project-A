@@ -1,5 +1,0 @@
-make --dry-run --always-make --keep-going --print-directory
-make: Entering directory '/home/dido/Documents/IST/Programação Concorrente/Projecto/PConc-Proj-A-2022-fichs/serial-version'
-gcc -Wall -pedantic serial-basic.c image-lib.c -g -o serial-basic -lgd
-make: Leaving directory '/home/dido/Documents/IST/Programação Concorrente/Projecto/PConc-Proj-A-2022-fichs/serial-version'
- 
