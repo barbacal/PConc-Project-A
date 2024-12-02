@@ -49,4 +49,5 @@ bool Check_for_Extension(char* filename, char* ext);
 void* OrderFiles();
 int Compare_Size(const void* a, const void* b);
 int Compare_Name(const void* a, const void* b);
-void* Timing();
+void* FinishTiming();
+void* StartTiming();
