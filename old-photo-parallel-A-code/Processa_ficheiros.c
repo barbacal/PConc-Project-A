@@ -1,9 +1,11 @@
- #include "Processa_ficheiros.h"
+#include "Processa_ficheiros.h"
  
 const int name_size = 100;
 extern int n_img;
+extern char* image_format; 
+extern const char*  jpeg_file, jpg_file;
 
-int Processa_smooth(char** ffiles, int n_files, int index) { 
+int Processa_smooth(int n_files, int index) { 
 	/* file name of the image created and to be saved on disk	 */
 	char out_file_name[name_size];
 	/* input images */
@@ -19,7 +21,7 @@ int Processa_smooth(char** ffiles, int n_files, int index) {
 		if (file_exists) continue;
 		printf("smooth %s\n", files[i]);
 		/* load of the input file */
-		if (image_format == jpg_file || image_format == jpeg_file) {
+		if (strcmp(image_format, jpg_file) == 0 || strcmp(image_format, jpeg_file) == 0) {
 			in_img = read_jpeg_file(img_from_dir);
 		} else {
 			in_img = read_png_file(img_from_dir);
@@ -29,12 +31,12 @@ int Processa_smooth(char** ffiles, int n_files, int index) {
 			continue;
 		}
 		/* creation of thumbnail from image */
-		out_smooth_img = smooth_img(in_img);
+		out_smooth_img = smooth_image(in_img);
   		if (!out_smooth_img) fprintf(stderr, "Impossible to create smooth of %s image\n", files[i]);
         else {
 			/* save smooth image */
 			sprintf(out_file_name, "%s%s", SMOOTH_DIR, files[i]);
-			if (image_format == jpg_file || image_format == jpeg_file) {
+			if (strcmp(image_format, jpg_file) == 0 || strcmp(image_format, jpeg_file) == 0) {
 				if(!write_jpeg_file(out_smooth_img, out_file_name)) fprintf(stderr, "Impossible to write %s image\n", out_file_name);
 			} else {
 				if(!write_png_file(out_smooth_img, out_file_name)) fprintf(stderr, "Impossible to write %s image\n", out_file_name);
@@ -47,7 +49,7 @@ int Processa_smooth(char** ffiles, int n_files, int index) {
 	exit(0);
 }
 
-int Processa_texture(char** ffiles, int n_files, int index) {
+int Processa_texture(int n_files, int index) {
 
  	puts("In Processa_texture...");
  	//puts("files here:"); 
@@ -59,7 +61,7 @@ int Processa_texture(char** ffiles, int n_files, int index) {
 	gdImagePtr out_texture_img; 
 	/* file name of the image created and to be saved on disk */
 	char out_file_name[100];
-    texture_img = read_png_file("paper-texture.png");
+    texture_img = read_png_file("./old-photo-parallel-A/paper-texture.png");
 	if(!texture_img) {
 		puts("No texture...");
 		fprintf(stderr, "Impossible to read %s image\n", "paper-texture.png");
@@ -91,7 +93,7 @@ int Processa_texture(char** ffiles, int n_files, int index) {
 			int file_exists = Check_existing_image(img_from_dir);
 			if (file_exists) continue;
 	    	/* load of the input file */
-			if (image_format == jpg_file || image_format == jpeg_file) {
+			if (strcmp(image_format, jpg_file) == 0 || strcmp(image_format, jpeg_file) == 0) {
 				in_img = read_jpeg_file(img_from_dir);
 			} else {
 				in_img = read_png_file(img_from_dir);
@@ -108,7 +110,7 @@ int Processa_texture(char** ffiles, int n_files, int index) {
        		} else {
 			/* save texture */
 				sprintf(out_file_name, "%s%s", TEXTURE_DIR, files[i]);
-				if (image_format == jpg_file || image_format == jpeg_file) {
+				if (strcmp(image_format, jpg_file) == 0 || strcmp(image_format, jpeg_file) == 0) {
 					if(!write_jpeg_file(out_texture_img, out_file_name)) fprintf(stderr, "Impossible to write %s image\n", out_file_name);
 				} else {
 					if(!write_png_file(out_texture_img, out_file_name)) fprintf(stderr, "Impossible to write %s image\n", out_file_name);
@@ -120,13 +122,14 @@ int Processa_texture(char** ffiles, int n_files, int index) {
 		//strcat(img_from_dir, "/");
 		//puts("New img_from_dir");
 		//puts(img_from_dir);
+			}
+			gdImageDestroy(texture_img);	
 		}
-		gdImageDestroy(texture_img);	
+		exit(0);
 	}
-	exit(0);
 }
 
-int Processa_contrast(char** ffiles, int n_files, int index) {
+int Processa_contrast(int n_files, int index) {
 	/* file name of the image created and to be saved on disk	 */
 	char out_file_name[name_size];
 	/* input images */
@@ -138,11 +141,11 @@ int Processa_contrast(char** ffiles, int n_files, int index) {
 	/* Iteration over all the files to resize images */
 	for (int i = index; i < n_files; i++) {	
 		strcat(img_from_dir, files[i]); //Path to image
-		int file_exists = Check_existing_image(img_file);
+		int file_exists = Check_existing_image(img_from_dir);
 		if (file_exists) continue;
 		/* load of the input file */
 	    printf("contrast %s\n", files[i]);
-		if (image_format == jpg_file || image_format == jpeg_file) {
+		if (strcmp(image_format, jpg_file) == 0 || strcmp(image_format, jpeg_file) == 0) {
 			in_img = read_jpeg_file(img_from_dir);
 		} else {
 			in_img = read_png_file(img_from_dir);
@@ -156,7 +159,7 @@ int Processa_contrast(char** ffiles, int n_files, int index) {
         else {
 			/* save contrast image*/
 			sprintf(out_file_name, "%s%s", CONTRAST_DIR, files[i]);
-			if (image_format == jpg_file || image_format == jpeg_file) {
+			if (strcmp(image_format, jpg_file) == 0 || strcmp(image_format, jpeg_file) == 0) {
 				if(!write_jpeg_file(out_contrast_img, out_file_name)) fprintf(stderr, "Impossible to write %s image\n", out_file_name);
 			} else
 				if(!write_png_file(out_contrast_img, out_file_name)) fprintf(stderr, "Impossible to write %s image\n", out_file_name);
@@ -167,7 +170,7 @@ int Processa_contrast(char** ffiles, int n_files, int index) {
 	exit(0);
 }
 
-int Processa_sepia(char** ffiles, int n_files, int index) { 
+int Processa_sepia(int n_files, int index) { 
 	/* file name of the image created and to be saved on disk	 */
 	char out_file_name[name_size];
 	/* input images */
@@ -179,11 +182,11 @@ int Processa_sepia(char** ffiles, int n_files, int index) {
 	strcat(img_from_dir, "/");
 	for (int i = index; i < n_files; i++) {
 		strcat(img_from_dir, files[i]); //Path to image
-		int file_exists = Check_existing_image(img_file);
+		int file_exists = Check_existing_image(img_from_dir);
 		if (file_exists) continue;	
 	   	printf("sepia %s\n", files[i]);
 		/* load of the input file */
-		if (image_format == jpg_file || image_format == jpeg_file) {
+		if (strcmp(image_format, jpg_file) == 0 || strcmp(image_format, jpeg_file) == 0) {
 			in_img = read_jpeg_file(img_from_dir);
 		} else {
 			in_img = read_png_file(img_from_dir);
@@ -198,7 +201,7 @@ int Processa_sepia(char** ffiles, int n_files, int index) {
         else {
 			/* save sepia image */
 			sprintf(out_file_name, "%s%s", SEPIA_DIR, files[i]);
-			if (image_format == jpg_file || image_format == jpeg_file) {
+			if (strcmp(image_format, jpg_file) == 0 || strcmp(image_format, jpeg_file) == 0) {
 				if(!write_jpeg_file(out_sepia_img, out_file_name)) fprintf(stderr, "Impossible to write %s image\n", out_file_name);
 			} else
 			if(!write_png_file(out_sepia_img, out_file_name)) fprintf(stderr, "Impossible to write %s image\n", out_file_name);

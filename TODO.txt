@@ -1,0 +1,2 @@
+corrigir "Invalid positive number." ver a função q toma o inteiro tal como no Chat
+passar de SEPIA para OLDPAR

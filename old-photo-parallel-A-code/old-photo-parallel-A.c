@@ -11,6 +11,7 @@
 
 #include "old-photo-parallel-A.h"
 
+
 /****************************************************************************************************
  * main()                                                                                           *                                                                               
  *                                                                                                  *
@@ -25,12 +26,13 @@
 
 int main(int argc, char* argv[]) {
     StartTiming();
-    Check_Inputt_Args(argc, argv);
+    Check_Input_Args(argc, argv);
     Check_Dirs();
     files = Read_Files_List();
     //puts("files in main:"); for (int i = 0; i < n_img; i++) puts(files[i]); // Dbg purpose; to delete
     OrderFiles();
     thread_info* threads = Make_thread_info_array();
+    FinishTimingSerial();
     Parallelize_Serial(threads);
     FreeAlloc();
     FinishTiming();
@@ -43,12 +45,16 @@ void* Parallelize_Serial(thread_info* threads) {
     /*void* thread_ret;*/
     /*int ret_val;*/
     for (int i = 0; i < n_threads; i++) {
-        printf("Thread %d creation\n", i + 1); // Dbg purpose; to delete
+        clock_gettime(CLOCK_REALTIME, &start_time_par);
+        printf("%dth thread creation.\n", i + 1); // Dbg purpose; to delete
         pthread_create(&thread_id[i], 0, Processa_threads, &threads[i]);
     }
     for (int i = 0; i < n_threads; i++) {
-        printf("Thread %d junction\n", i + 1); // Dbg purpose; to delete
+        printf("%dth thread junction.\n", i + 1); // Dbg purpose; to delete
+        long int thr_id = pthread_self();
         pthread_join(thread_id[i], 0/*&thread_ret*/);
+        clock_gettime(CLOCK_REALTIME, &start_time_par);
+        GetParallelTiming(&start_time_par, &end_time_par, thr_id);    
     }
     //threads = 0;
     return (void*)0;    
@@ -59,14 +65,14 @@ void* Processa_threads(void* args) {
     printf("In 'Processa_threads' \nthread id = %ld\n", pthread_self());
     printf("n_files = %d; ", (int)thread_process.n_files);
     printf("search_index = %d\n", (int)thread_process.search_index);
-    char** images_copy = (char**)malloc(sizeof files);
-    images_copy = files;
+    //char** images_copy = (char**)malloc(sizeof files);
+    //images_copy = files;
     for (int i = 0; i < thread_process.n_files; i++) {
         printf("start iteration %d\n", i);
-        Processa_contrast(images_copy, thread_process.n_files, thread_process.search_index);
-        Processa_smooth(images_copy, thread_process.n_files, thread_process.search_index);
-        Processa_texture(images_copy, thread_process.n_files, thread_process.search_index);
-        Processa_sepia(images_copy, thread_process.n_files, thread_process.search_index);
+        Processa_contrast( thread_process.n_files, thread_process.search_index);
+        Processa_smooth(thread_process.n_files, thread_process.search_index);
+        Processa_texture( thread_process.n_files, thread_process.search_index);
+        Processa_sepia(thread_process.n_files, thread_process.search_index);
         printf("end iteration %d\n", i);
     }
     puts("out");
@@ -79,23 +85,23 @@ void* Check_Dirs() {
 		exit(-1);
 	}
     printf("Image directory is: %s\n", IMG_DIR);         // Dbg purpose; to delete 
-    CONTRAST_DIR = strcat(IMG_DIR, CONTRAST_DIR);
+    sprintf(CONTRAST_DIR, "%s%s", IMG_DIR, CONTRAST_DIR);
     if (create_directory(CONTRAST_DIR) == 0) {
 		fprintf(stderr, "Impossible to create '%s' directory. Exiting.\n", CONTRAST_DIR);
 		exit(-1);
 	}
-    SMOOTH_DIR = strcat(IMG_DIR, SMOOTH_DIR);
+    sprintf(SMOOTH_DIR, "%s%s", IMG_DIR, SMOOTH_DIR);
     if (create_directory(SMOOTH_DIR) == 0) {
 		fprintf(stderr, "Impossible to create '%s' directory. Exiting.\n", SMOOTH_DIR);
 		exit(-1);
 	}
-    TEXTURE_DIR = strcat(IMG_DIR, TEXTURE_DIR);
+    sprintf(TEXTURE_DIR, "%s%s", IMG_DIR, TEXTURE_DIR);
 	if (create_directory(TEXTURE_DIR) == 0) {
 		fprintf(stderr, "Impossible to create '%s' directory. Exiting.\n", TEXTURE_DIR);
 		exit(-1);
         
 	}
-    SEPIA_DIR = strcat(IMG_DIR, SEPIA_DIR);
+    sprintf(SEPIA_DIR, "%s%s", IMG_DIR, SEPIA_DIR);
 	if (create_directory(SEPIA_DIR) == 0) {
 		fprintf(stderr, "Impossible to create '%s' directory. Exiting.\n", SEPIA_DIR);
 		exit(-1);
@@ -114,18 +120,20 @@ void* Check_Input_Args(int argc, char* argv[]) {
         puts("Invalid positive number.");
         puts(help);
         exit(-1);
-    } else if ((OPTION != "-size") && (OPTION != "-name")) {
+    } else if ((strcmp(OPTION, "-size") != 0 ) && (strcmp(OPTION, "-name") != 0)) {
         puts("Invalid image ordering option.");
         puts(help);
         exit(-1);
     }
     IMG_DIR = argv[1];
+    strcat(IMG_DIR, "/");
     printf("Number of threads will be: %d\n", n_threads); // Dbg purpose; to delete 
-    printf("Image directory is: %s\n", IMG_DIR);          // Dbg purpose; to delete 
+    printf("Image directory is: %s\n", IMG_DIR);          // Dbg purpose; to delete
+    return (void*)0;
 }
 
 char** Read_Files_List() {
-    bool isFileList = true
+    bool isFileList = true;
     FILE* fp = 0;
     const int name_size = 100; // maximum size in chars of an image filename
     char img_name[name_size];
@@ -136,7 +144,7 @@ char** Read_Files_List() {
         fprintf(stderr, "File %s can't be opened or does not exist.\n", IMG_LIST);
         isFileList = false;
         puts("Checking for images in image folder.");
-        if (!Check_for_Images()){
+        if (!Check_for_Images()) {
             puts("No images found of formats .jpg, .jpg or .png. Exiting.");
             exit(-1);
         }
@@ -153,13 +161,15 @@ char** Read_Files_List() {
         rewind(fp);
         char** files = (char**)calloc(n_img, sizeof(char*));
         if (!files) {
+            fclose(fp);
             puts("Cannot process images from list. Aborting.");
+            fp = 0;
             exit(-1);
         }
         int i = 0;
         while (fgets(img_name, name_size, fp) != 0) { //perhaps 'fscanf' is a better option: fscanf(fp, "%s", img_name); 
             img_file = strtok((char*)img_name, "\n");
-            if (!img_file) break;
+            if (!img_file) continue;
             //printf("img_file: %s\n", img_file);  // Dbg purpose; to delete
             char* file_format = strstr(img_file, image_format);
             //printf("strstr: %s\n", file_format);  // Dbg purpose; to delete
@@ -169,12 +179,11 @@ char** Read_Files_List() {
                     printf("Cannot process %s. Skipping this one.\n", files[i]);
                     continue;
                 } 
-            strcpy(files[i], img_file);
-            //puts(files[i]); // Dbg purpose; to delete 
-            i++;
+                strcpy(files[i], img_file);
+                //puts(files[i]); // Dbg purpose; to delete 
+                i++;
             }
         }
-        fclose(fp);
     } else {
         DIR* dir;
         dir = opendir(IMG_DIR);
@@ -183,25 +192,33 @@ char** Read_Files_List() {
             exit(-1);
         }
         struct dirent* entry;
+        struct stat st;
         int i = 0;
-        while ((entry = readdir(dir)) != 0) {
-            if (entry->d_type == DT_REG) {
-                if (Check_for_Extension((img_name = entry->d_name), image_format)) {
-                    img_file = strtok((char*)img_name, "\n")
-                    printf("Found image of format: %s\n", image_format);
-                    files[i] = (char*)malloc((strlen(img_name) + 1) * sizeof(char));
-                    if (!files[i]) {
-                        printf("Cannot process %s. Skipping this one.\n", files[i]);
-                        continue;
+        while ((entry = readdir(dir)) != NULL) {
+            //char img_path[100];
+            //snprintf(img_path, sizeof(img_path), "%s/%s", IMG_DIR, entry->d_name);
+            if (stat(entry->d_name, &st)) {
+                if (S_ISREG(st.st_mode)) {
+                    strncpy(img_name, entry->d_name, sizeof(img_name) - 1);
+                    img_name[sizeof(img_name) - 1] = '\0';
+                    if (Check_for_Extension(img_name, image_format)) {
+                        img_file = strtok((char*)img_name, "\n");
+                        printf("Found image of format: %s\n", image_format);
+                        files[i] = (char*)malloc((strlen(img_name) + 1) * sizeof(char));
+                        if (!files[i]) {
+                            printf("Cannot process %s. Skipping this one.\n", files[i]);
+                            continue;
+                        }
+                        strcpy(files[i], img_file);
+                        //puts(files[i]); // Dbg purpose; to delete 
+                        i++;
                     }
-                    strcpy(files[i], img_file);
-                    //puts(files[i]); // Dbg purpose; to delete 
-                    i++;
                 }
             }
         }
         closedir(dir);
     }
+    fclose(fp);
     fp = 0;
     return files;
 }
@@ -249,6 +266,8 @@ bool Check_for_Images() {
     bool res = false;
     int n_formats = 2;
     char* file_format[3] = {png_file, jpg_file, jpeg_file}; //Assumes either PNG, JPG or JPEG or empty folder
+    const int name_size = 100; // maximum size in chars of an image filename
+    char img_name[name_size];
     DIR* dir;
  loop:  dir = opendir(IMG_DIR);
     if (!dir) {
@@ -256,15 +275,20 @@ bool Check_for_Images() {
         exit(-1);
     }
     struct dirent* entry;
-    while ((entry = readdir(dir)) != 0) {
-        if (entry->d_type == DT_REG) {
-            if (Check_for_Extension(entry->d_name, file_format[n_formats])) {
-                res = true;
-                image_format = file_format[n_formats];
-                printf("Found image(s) of format: %s\n", file_format[i]);
-                break;
+    struct stat st;
+    while ((entry = readdir(dir)) != NULL) {
+            if (stat(entry->d_name, &st)) {
+                if (S_ISREG(st.st_mode)) {
+                    strncpy(img_name, entry->d_name, sizeof(img_name) - 1);
+                    img_name[sizeof(img_name) - 1] = '\0';
+                    if (Check_for_Extension(entry->d_name, file_format[n_formats])) {
+                        res = true;
+                        image_format = file_format[n_formats];
+                        printf("Found image(s) of format: %s\n", file_format[n_formats]);
+                        break;
+                    }
+                }
             }
-        }
     }
     closedir(dir);
     if(!res && !n_formats) {
@@ -273,7 +297,8 @@ bool Check_for_Images() {
     }
     return res;
 }
-bool Check_for_Extension(const char* filename, char* ext) {
+
+_Bool Check_for_Extension(char* filename, char* ext) {
     size_t filename_len = strlen(filename);
     size_t ext_len = strlen(ext);
     const char *file_ext = filename + filename_len - ext_len;
@@ -286,7 +311,7 @@ bool Check_for_Extension(const char* filename, char* ext) {
 }
 
 void* OrderFiles() {
-    if (OPTION == "-size") {
+    if (strcmp(OPTION, "-size") != 0) {
         qsort(files, n_img, sizeof(char*), Compare_Size);
     } else {
         qsort(files, n_img, sizeof(char*), Compare_Name);
@@ -306,32 +331,79 @@ int Compare_Name(const void* a, const void* b) {
 }
 
 void* StartTiming() {
-	clock_gettime(CLOCK_MONOTONIC, &start_time_par);
+	clock_gettime(CLOCK_REALTIME, &start_time_total);
+    clock_gettime(CLOCK_REALTIME, &start_time_ser);
+    return (void*)0;
 }
 
-void* FinishTiming() {
-    clock_gettime(CLOCK_MONOTONIC, &end_time_par);
-    struct timespec par_time = diff_timespec(&end_time_par, &start_time_par);
-    FILE *file;
-    char* timing_file, timing = (char*)malloc(100 * sizeof(char));
-    timing_file = IMG_DIR;
+void* FinishTimingSerial() {
+    clock_gettime(CLOCK_REALTIME, &end_time_ser); 
+    struct timespec ser_time = diff_timespec(&end_time_ser, &start_time_ser);
+    FILE *fp;
+    char* timing = (char*)malloc(100 * sizeof(char));
+    timing_file = (char*)malloc(100 * sizeof(char));
+    sprintf(timing_file, "%s%s", IMG_DIR,"/timing_");
     timing_file = strcat(timing_file, "<");
     char* str_n_threads = (char*)malloc(3 * sizeof(char));
     sprintf(str_n_threads, "%d", n_threads);
     timing_file = strcat(timing_file, str_n_threads);
     sprintf(timing_file, "%s>%s.txt", timing_file, OPTION);
-    file = fopen(timing_file, "w");
+    fp = fopen(timing_file, "w");
     if (!fp) {
         fprintf(stderr, "File %s can't be created.\n", timing_file);
-        exit(-1);
+        return (void*) -1;
     }
-    timing = sprintf(timing, "\tpar \t %10jd.%09ld\n", par_time.tv_sec, par_time.tv_nsec);
+    sprintf(timing, "\tser \t %10jd.%09ld\n", ser_time.tv_sec, ser_time.tv_nsec);
     if (fputs(timing, fp) == EOF) {
         fprintf(stderr, "Error on writing in file %s.\n", timing_file);
-        fclose(file);
+        fclose(fp);
         fp = 0;
-        exit(-1);
+        return (void*) -1;
     }
-    close(fp);
+    fclose(fp);
     fp = 0;
+    return (void*)0;
+}
+
+void* FinishTiming() {
+    clock_gettime(CLOCK_REALTIME, &end_time_total);
+    struct timespec total_time = diff_timespec(&end_time_total, &start_time_total);
+    char* timing = (char*)malloc(100 * sizeof(char));
+    FILE *fp;
+    fp = fopen(timing_file, "a");
+    if (!fp) {
+        fprintf(stderr, "File %s can't be appended.\n", timing_file);
+        return (void*) -1;
+    }
+    sprintf(timing, "\ttotal \t %10jd.%09ld\n", total_time.tv_sec, total_time.tv_nsec);
+    if (fputs(timing, fp) == EOF) {
+        fprintf(stderr, "Error on writing in file %s.\n", timing_file);
+        fclose(fp);
+        fp = 0;
+        return (void*) -1;
+    }
+    fclose(fp);
+    fp = 0;
+    return (void*)0;
+}
+
+void* GetParallelTiming(struct timespec* start, struct timespec* end, long int thr_id) {
+    struct timespec par_time = diff_timespec(end, start);
+    char* timing = (char*)malloc(100 * sizeof(char));
+    FILE *fp;
+    fp = fopen(timing_file, "a");
+    if (!fp) {
+        fprintf(stderr, "File %s can't be appended.\n", timing_file);
+        return (void*) -1;
+    }
+    sprintf(timing, "\tpar %ld\t %10jd.%09ld\n", thr_id, par_time.tv_sec, par_time.tv_nsec);
+    if (fputs(timing, fp) == EOF) {
+        fprintf(stderr, "Error on writing in file %s.\n", timing_file);
+        fclose(fp);
+        fp = 0;
+        return (void*) -1;
+    }
+    fclose(fp);
+    fp = 0;
+    return (void*)0;
 }

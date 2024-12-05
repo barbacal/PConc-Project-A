@@ -1,3 +1,7 @@
+#define _POSIX_C_SOURCE 200809L
+//#define _GNU_SOURCE  
+
+
 #include <sys/stat.h>
 #include <sys/types.h>
 #include <dirent.h>
@@ -5,7 +9,6 @@
 #include <string.h>
 #include <unistd.h>
 #include "image-lib.h"
-#include <gd.h>
 
 
 
@@ -18,8 +21,8 @@ extern char** files;
 
 //extern struct thread_info /*thread_process*/;
 
-int Processa_contrast(char** files, int n_files, int index);
-int Processa_smooth(char** files, int n_files, int index);
-int Processa_texture(char** files, int n_files, int index);
-int Processa_sepia(char** files, int n_files, int index);
+int Processa_contrast(int n_files, int index);
+int Processa_smooth(int n_files, int index);
+int Processa_texture(int n_files, int index);
+int Processa_sepia(int n_files, int index);
 int Check_existing_image(char* img_file);
