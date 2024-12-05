@@ -246,15 +246,22 @@ int write_jpeg_file(gdImagePtr write_img, char * file_name){
 int create_directory(char * dir_name){
 
 	DIR * d = opendir(dir_name);
-	if (d == NULL){
-		if (mkdir(dir_name, 0777)!=0){
+	if (d == NULL) {
+		//if (mkdir(dir_name, 0777)!=0){
+		int res;
+		fprintf(stderr, "%s: dir_name\n", dir_name);
+		char mk_dir[100];
+		sprintf(mk_dir, "mkdir -p %s", dir_name);
+		if ((res = system(mk_dir)) != 0) {
+			fprintf(stderr, "'%s': Error creating folder.\n", dir_name);
+			return -1;
+		} else if (res == 0) {
 			return 0;
+		} else {
+			closedir(d);
 		}
-	}else{
-		fprintf(stderr, "%s directory already existent\n", dir_name);
-		closedir(d);
 	}
-	return 1;
+	return 1;		
 }
 
 

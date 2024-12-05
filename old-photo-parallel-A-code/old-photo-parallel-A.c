@@ -29,7 +29,7 @@ int main(int argc, char* argv[]) {
     Check_Input_Args(argc, argv);
     Check_Dirs();
     files = Read_Files_List();
-    //puts("files in main:"); for (int i = 0; i < n_img; i++) puts(files[i]); // Dbg purpose; to delete
+    puts("files in main:"); for (int i = 0; i < n_img; i++) puts(files[i]); // Dbg purpose; to delete
     OrderFiles();
     thread_info* threads = Make_thread_info_array();
     FinishTimingSerial();
@@ -80,32 +80,44 @@ void* Processa_threads(void* args) {
 }
 
 void* Check_Dirs() {
-    if (!create_directory(IMG_DIR)){
-		fprintf(stderr, "No such directory exists: '%s'. Exiting\n", IMG_DIR);
-		exit(-1);
-	}
-    printf("Image directory is: %s\n", IMG_DIR);         // Dbg purpose; to delete 
-    sprintf(CONTRAST_DIR, "%s%s", IMG_DIR, CONTRAST_DIR);
-    if (create_directory(CONTRAST_DIR) == 0) {
-		fprintf(stderr, "Impossible to create '%s' directory. Exiting.\n", CONTRAST_DIR);
-		exit(-1);
-	}
-    sprintf(SMOOTH_DIR, "%s%s", IMG_DIR, SMOOTH_DIR);
-    if (create_directory(SMOOTH_DIR) == 0) {
-		fprintf(stderr, "Impossible to create '%s' directory. Exiting.\n", SMOOTH_DIR);
-		exit(-1);
-	}
-    sprintf(TEXTURE_DIR, "%s%s", IMG_DIR, TEXTURE_DIR);
-	if (create_directory(TEXTURE_DIR) == 0) {
-		fprintf(stderr, "Impossible to create '%s' directory. Exiting.\n", TEXTURE_DIR);
-		exit(-1);
-        
-	}
-    sprintf(SEPIA_DIR, "%s%s", IMG_DIR, SEPIA_DIR);
-	if (create_directory(SEPIA_DIR) == 0) {
-		fprintf(stderr, "Impossible to create '%s' directory. Exiting.\n", SEPIA_DIR);
-		exit(-1);
-	}
+    if (create_directory(IMG_DIR) == 0){
+		fprintf(stderr, "'%s' does not exist. Exiting.\n", IMG_DIR);
+        rmdir(IMG_DIR);
+        exit(-1);
+    }
+    char* dir;
+    int res;
+    //IMG_DIR = strtok((char*)IMG_DIR, "/");;
+    size_t img_dir_len = strlen(IMG_DIR);
+    dir = (char*)malloc((img_dir_len + strlen(CONTRAST_DIR) + 1) * sizeof(char));
+    sprintf(dir, "%s%s", IMG_DIR, CONTRAST_DIR);
+     
+    CONTRAST_DIR = dir;
+    //printf("Contrast directory is: %s\n", CONTRAST_DIR);         // Dbg purpose; to delete 
+    if ((res = create_directory(CONTRAST_DIR)) == 0) {
+		printf("'%s' created.\n", CONTRAST_DIR);
+	} else if (res == 1) fprintf(stderr, "'%s' already exists.\n", CONTRAST_DIR);
+    dir = (char*)malloc((img_dir_len + strlen(SMOOTH_DIR) + 1) * sizeof(char));
+    sprintf(dir, "%s%s", IMG_DIR, SMOOTH_DIR);
+     
+    SMOOTH_DIR = dir;
+    if ((res = create_directory(SMOOTH_DIR)) == 0) {
+		printf("'%s' created.\n", SMOOTH_DIR);
+	} if (res == 1) fprintf(stderr, "'%s' already exists.\n", SMOOTH_DIR);
+    dir = (char*)malloc((img_dir_len + strlen(TEXTURE_DIR) + 1) * sizeof(char));
+    sprintf(dir, "%s%s", IMG_DIR, TEXTURE_DIR);
+     
+    TEXTURE_DIR = dir;
+	if ((res = create_directory(TEXTURE_DIR)) == 0) {
+		printf("'%s' created.\n", TEXTURE_DIR);
+	} if (res == 1) fprintf(stderr, "'%s' already exists.\n", TEXTURE_DIR);
+    dir = (char*)malloc(img_dir_len + strlen((SEPIA_DIR) + 1) * sizeof(char));
+    sprintf(dir, "%s%s", IMG_DIR, (SEPIA_DIR));
+     
+    SEPIA_DIR = dir;
+	if ((res = create_directory(SEPIA_DIR)) == 0) {
+		printf("'%s' created.\n", SEPIA_DIR);
+	}if (res == 1) fprintf(stderr, "'%s' already exists.\n", SEPIA_DIR);
     return (void*)0;
 }
 
@@ -114,8 +126,21 @@ void* Check_Input_Args(int argc, char* argv[]) {
     //printf("argv[1]: %s\n", argv[1]); // Dbg purpose; to delete
     //printf("argv[2]: %s\n", argv[2]); // Dbg purpose; to delete
     const char* help = "Wrong calling. Usage example with 4 threads: './old-photo-parallel-A ./dir-1 4 -size (or -name)'. Exiting.";
-    (argc < 4) ? (puts(help), exit(-1)) : (n_threads = strtol(argv[2], NULL, 100));
+    if (argc < 4) {
+        puts(help);
+        exit(-1);
+    } else {
+        char *endptr;
+        n_threads = strtol(argv[2], &endptr, 10); // Base 10
+        if (*endptr != '\0') {
+            fprintf(stderr, "Invalid number for threads: %s\n", argv[2]);
+            puts(help);
+            exit(-1);
+        }
+    }   
+    //printf("n_threads: %d\n", n_threads); // Dbg purpose; to delete
     OPTION = argv[3];
+    //printf("argv[3]: %s\n", OPTION);
     if (!n_threads) {
         puts("Invalid positive number.");
         puts(help);
@@ -126,18 +151,26 @@ void* Check_Input_Args(int argc, char* argv[]) {
         exit(-1);
     }
     IMG_DIR = argv[1];
-    strcat(IMG_DIR, "/");
+    //strcat(IMG_DIR, "/");
+    if (IMG_DIR[strlen(IMG_DIR) - 1] == '/') IMG_DIR[strlen(IMG_DIR) - 1] = '\0';
     printf("Number of threads will be: %d\n", n_threads); // Dbg purpose; to delete 
     printf("Image directory is: %s\n", IMG_DIR);          // Dbg purpose; to delete
     return (void*)0;
 }
 
 char** Read_Files_List() {
+    files = (char*)malloc(1000 * sizeof(char*));
     bool isFileList = true;
     FILE* fp = 0;
     const int name_size = 100; // maximum size in chars of an image filename
     char img_name[name_size];
     char* img_file = 0;
+    char* list;
+    size_t img_dir_len = strlen(IMG_DIR);
+    list = (char*)malloc((img_dir_len + strlen(IMG_LIST) + 1) * sizeof(char));
+    sprintf(list, "%s/%s", IMG_DIR, IMG_LIST);
+     
+    IMG_LIST = list;
     printf("Reading '%s'.\n", IMG_LIST);
     fp = fopen(IMG_LIST, "rb");
     if (!fp) {
@@ -145,7 +178,7 @@ char** Read_Files_List() {
         isFileList = false;
         puts("Checking for images in image folder.");
         if (!Check_for_Images()) {
-            puts("No images found of formats .jpg, .jpg or .png. Exiting.");
+            puts("No images found of formats .jpg, .jpeg or .png. Exiting.");
             exit(-1);
         }
     }
@@ -176,7 +209,7 @@ char** Read_Files_List() {
             if (file_format != NULL && !strcmp(file_format, image_format)) {
                 files[i] = (char*)malloc((strlen(img_name) + 1) * sizeof(char));
                 if (!files[i]) {
-                    printf("Cannot process %s. Skipping this one.\n", files[i]);
+                    printf("Cannot process %s. Skipping this one.\n", img_name);
                     continue;
                 } 
                 strcpy(files[i], img_file);
@@ -195,31 +228,39 @@ char** Read_Files_List() {
         struct stat st;
         int i = 0;
         while ((entry = readdir(dir)) != NULL) {
-            //char img_path[100];
-            //snprintf(img_path, sizeof(img_path), "%s/%s", IMG_DIR, entry->d_name);
-            if (stat(entry->d_name, &st)) {
+            char* img_path;
+            img_path = (char*)malloc((2 * strlen(IMG_DIR) + 1) * sizeof(char));
+            sprintf(img_path, "%s/%s", IMG_DIR, entry->d_name);
+            if (!stat(img_path, &st)) {
                 if (S_ISREG(st.st_mode)) {
+                    if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
                     strncpy(img_name, entry->d_name, sizeof(img_name) - 1);
                     img_name[sizeof(img_name) - 1] = '\0';
+                    img_name[sizeof(entry->d_name) - 1] = '\0';
                     if (Check_for_Extension(img_name, image_format)) {
-                        img_file = strtok((char*)img_name, "\n");
-                        printf("Found image of format: %s\n", image_format);
-                        files[i] = (char*)malloc((strlen(img_name) + 1) * sizeof(char));
+                        //printf("Found image of format: %s\n", image_format);
+                        //puts(img_name); // Dbg purpose; to delete
+                        files[i] = (char*)malloc((strlen(img_name) + 1)* sizeof(char));
                         if (!files[i]) {
                             printf("Cannot process %s. Skipping this one.\n", files[i]);
+                            free(img_path);
                             continue;
                         }
-                        strcpy(files[i], img_file);
-                        //puts(files[i]); // Dbg purpose; to delete 
+                        strcpy(files[i], img_name);
+                        printf("Found image of %s, put file. Next.\n", files[i] );
                         i++;
+                        n_img++;
                     }
                 }
             }
+            free(img_path);
         }
-        closedir(dir);
+        if(dir) closedir(dir);
     }
-    fclose(fp);
-    fp = 0;
+    if (fp) {
+        fclose(fp);
+        fp = 0;
+    }
     return files;
 }
 
@@ -277,21 +318,26 @@ bool Check_for_Images() {
     struct dirent* entry;
     struct stat st;
     while ((entry = readdir(dir)) != NULL) {
-            if (stat(entry->d_name, &st)) {
-                if (S_ISREG(st.st_mode)) {
-                    strncpy(img_name, entry->d_name, sizeof(img_name) - 1);
-                    img_name[sizeof(img_name) - 1] = '\0';
-                    if (Check_for_Extension(entry->d_name, file_format[n_formats])) {
-                        res = true;
-                        image_format = file_format[n_formats];
-                        printf("Found image(s) of format: %s\n", file_format[n_formats]);
-                        break;
-                    }
+        char* file_path;
+        file_path = (char*)malloc((2 * strlen(IMG_DIR) + 1) * sizeof(char));
+        sprintf(file_path, "%s/%s", IMG_DIR, entry->d_name);
+        if (!stat(file_path/*entry->d_name*/, &st)) {
+            if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
+             if (S_ISREG(st.st_mode)) {
+                strncpy(img_name, entry->d_name, sizeof(img_name));
+                img_name[sizeof(img_name) - 1] = '\0';
+                //printf("img_name: '%s'\n", img_name); // Dbg purpose; to delete
+                if (Check_for_Extension(entry->d_name, file_format[n_formats])) {
+                    res = true;
+                    image_format = file_format[n_formats];
+                    printf("Found image(s) of format: %s\n", image_format);
+                    break;
                 }
             }
+        }
     }
     closedir(dir);
-    if(!res && !n_formats) {
+    if(!res && n_formats) {
         n_formats--;
         goto loop;
     }

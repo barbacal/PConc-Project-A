@@ -1,0 +1,117 @@
+==43771== Callgrind, a call-graph generating cache profiler
+==43771== Copyright (C) 2002-2017, and GNU GPL'd, by Josef Weidendorfer et al.
+==43771== Using Valgrind-3.18.1-42b08ed5bd-20211015 and LibVEX; rerun with -h for copyright info
+==43771== Command: ./../old-photo-parallel-A ../Dataset-1 4 -name
+==43771== Parent PID: 43770
+==43771== 
+--43771-- 
+--43771-- Valgrind options:
+--43771--    --tool=callgrind
+--43771--    --verbose
+--43771--    --log-file=valgrind.log
+--43771-- Contents of /proc/version:
+--43771--   Linux version 6.8.0-49-generic (buildd@lcy02-amd64-103) (x86_64-linux-gnu-gcc-12 (Ubuntu 12.3.0-1ubuntu1~22.04) 12.3.0, GNU ld (GNU Binutils for Ubuntu) 2.38) #49~22.04.1-Ubuntu SMP PREEMPT_DYNAMIC Wed Nov  6 17:42:15 UTC 2
+--43771-- 
+--43771-- Arch and hwcaps: AMD64, LittleEndian, amd64-cx16-lzcnt-rdtscp-sse3-ssse3-avx-avx2-bmi-f16c-rdrand
+--43771-- Page sizes: currently 4096, max supported 4096
+--43771-- Valgrind library directory: /usr/libexec/valgrind
+==43771== For interactive control, run 'callgrind_control -h'.
+--43771-- Reading syms from /home/dido/Documents/IST/Programação Concorrente/Projecto A/ist46793_ProjectoA/old-photo-parallel-A
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/ld-linux-x86-64.so.2
+--43771--   Considering /usr/lib/debug/.build-id/41/86944c50f8a32b47d74931e3f512b811813b64.debug ..
+--43771--   .. build-id is valid
+--43771-- Reading syms from /usr/libexec/valgrind/callgrind-amd64-linux
+--43771--    object doesn't have a symbol table
+--43771--    object doesn't have a dynamic symbol table
+--43771-- Scheduler: using generic scheduler lock implementation.
+==43771== embedded gdbserver: reading from /tmp/vgdb-pipe-from-vgdb-to-43771-by-dido-on-???
+==43771== embedded gdbserver: writing to   /tmp/vgdb-pipe-to-vgdb-from-43771-by-dido-on-???
+==43771== embedded gdbserver: shared mem   /tmp/vgdb-pipe-shared-mem-vgdb-43771-by-dido-on-???
+==43771== 
+==43771== TO CONTROL THIS PROCESS USING vgdb (which you probably
+==43771== don't want to do, unless you know exactly what you're doing,
+==43771== or are doing some strange experiment):
+==43771==   /usr/bin/vgdb --pid=43771 ...command...
+==43771== 
+==43771== TO DEBUG THIS PROCESS USING GDB: start GDB like this
+==43771==   /path/to/gdb ./../old-photo-parallel-A
+==43771== and then give GDB the following command
+==43771==   target remote | /usr/bin/vgdb --pid=43771
+==43771== --pid is optional if only one valgrind process is running
+==43771== 
+--43771-- Reading syms from /usr/libexec/valgrind/vgpreload_core-amd64-linux.so
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libgd.so.3.0.8
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libc.so.6
+--43771--   Considering /usr/lib/debug/.build-id/49/0fef8403240c91833978d494d39e537409b92e.debug ..
+--43771--   .. build-id is valid
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libm.so.6
+--43771--   Considering /usr/lib/debug/.build-id/a5/08ec5d8bf12fb7fd08204e0f87518e5cd0b102.debug ..
+--43771--   .. build-id is valid
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libpng16.so.16.37.0
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libz.so.1.2.11
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libfontconfig.so.1.12.0
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libfreetype.so.6.18.1
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libjpeg.so.8.2.2
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libXpm.so.4.11.0
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libtiff.so.5.7.0
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libwebp.so.7.1.3
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libexpat.so.1.8.7
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libuuid.so.1.3.0
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libbrotlidec.so.1.0.9
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libX11.so.6.4.0
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libzstd.so.1.4.8
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/liblzma.so.5.2.5
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libjbig.so.0
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libdeflate.so.0
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libbrotlicommon.so.1.0.9
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libxcb.so.1.1.0
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libXau.so.6.0.0
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libXdmcp.so.6.0.0
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libbsd.so.0.11.5
+--43771--    object doesn't have a symbol table
+--43771-- Reading syms from /usr/lib/x86_64-linux-gnu/libmd.so.0.0.5
+--43771--    object doesn't have a symbol table
+--43771-- Symbol match: found runtime_resolve: ld-linux-x86-64.so.2 +0x15c60=0x4015c60
+==43771== 
+==43771== Process terminating with default action of signal 11 (SIGSEGV)
+==43771==  Access not within mapped region at address 0xFFFFFFFFFFFFFF8D
+==43771==    at 0x4A72CB7: __strcmp_avx2 (strcmp-avx2.S:751)
+==43771==    by 0x10CF4C: Processa_contrast (Processa_ficheiros.c:148)
+==43771==    by 0x10AAEC: Processa_threads (old-photo-parallel-A.c:72)
+==43771==    by 0x496EAC2: start_thread (pthread_create.c:442)
+==43771==    by 0x49FFA03: clone (clone.S:100)
+==43771==  If you believe this happened as a result of a stack
+==43771==  overflow in your program's main thread (unlikely but
+==43771==  possible), you can try to increase the size of the
+==43771==  main thread stack using the --main-stacksize= flag.
+==43771==  The main thread stack size used in this run was 8388608.
+==43771== 
+--43771-- Start dumping at BB 294252 (Prg.Term.)...
+--43771-- Dump to /home/dido/Documents/IST/Programação Concorrente/Projecto A/ist46793_ProjectoA/old-photo-parallel-A-code/callgrind.out.43771
+--43771-- Dumping done.
+==43771== Events    : Ir
+==43771== Collected : 1513458
+==43771== 
+==43771== I   refs:      1,513,458
