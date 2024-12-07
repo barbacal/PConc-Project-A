@@ -1,7 +1,7 @@
 CC = gcc
-CFLAGS = -I. -g -Wall -Wextra -std=c11 -v -pedantic
+CFLAGS = -I. -g -Wall -Wextra -std=c11 -v -pedantic -D_POSIX_C_SOURCE=200809L
 INCLUDES = #
-LIBS = -lgd -lpthread -lrt
+LIBS = -lgd -lpthread -lrt -pthread
 VALFLAGS = --tool=callgrind --verbose --log-file=valgrind.log
 EXEC = ../old-photo-parallel-A
 
@@ -20,13 +20,18 @@ clean:
 	@echo Cleaned
 
 clean-all:
-	rm -fr *~ core $(EXEC) *.*o*
+	rm -fr *~ core $(EXEC) *.*o* ../Dataset*/timing* ../Dataset-*/*PAR_A
 	@echo Cleaned all
 
 run:
-	./$(EXEC) "$(ARGS)"
-	@echo Ran
+	./$(EXEC) $(ARGS)
+	@echo Ran with user input
 
+
+run_default: 
+	./$(EXEC) $(ARGS)
+	@echo Ran default
+	
 run-debug:
 	gdb ./$(EXEC) $(ARGS) ./Dataset-1 4 -name
 
@@ -36,5 +41,5 @@ setup_coredumps:
 coregrind:
 	make clean-all
 	make all
-	valgrind $(VALFLAGS) ./$(EXEC) $(ARGS) ../Dataset-1 4 -name;kcachegrind callgrind.out*;
+	valgrind $(VALFLAGS) ./$(EXEC) $(ARGS) ./Dataset-1 4 -name;
 	@echo Ran with valgrind

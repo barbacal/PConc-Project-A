@@ -192,18 +192,28 @@ gdImagePtr read_jpeg_file(char * file_name){
 
 	FILE * fp;
 	gdImagePtr read_img;
-
 	fp = fopen(file_name, "rb");
+  // 	puts("read_jpeg_file1:");
    	if (!fp) {
+//		puts(file_name);
+		fprintf(stderr, "Can't read image %s\n", file_name);
+		return NULL;
+	}
+	if (!fp) {
+//		puts(file_name);
         fprintf(stderr, "Can't read image %s\n", file_name);
         return NULL;
     }
+	//puts("read_jpeg_file2");
     read_img = gdImageCreateFromJpeg(fp);
-    fclose(fp);
+   // puts("read_jpeg_file3");
+	if (fp) fclose(fp);
+	// puts("read_jpeg_file3");
   	if (read_img == NULL) {
+	//	puts("read_jpeg_file5");
     	return NULL;
     }
-
+//puts("read_jpeg_file6");
 	return read_img;
 }
 
