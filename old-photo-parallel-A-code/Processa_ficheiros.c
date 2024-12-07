@@ -66,9 +66,6 @@ int Processa_texture(int n_files, int index, char** files) {
 	gdImagePtr out_texture_img; 
 	/* file name of the image created and to be saved on disk */
 	bool texture_exists = true;
-	puts("files in Processa_texture:"); for (int i = 0; i < n_img; i++) puts(files[i]); // Dbg purpose; to delete
-	printf("n_files: %d, index: %d.\n", n_files, index);
-	
     texture_img = read_png_file("./old-photo-parallel-A-code/paper-texture.png");
 	if(!texture_img) {
 		puts("No texture...");
@@ -91,7 +88,7 @@ int Processa_texture(int n_files, int index, char** files) {
 	    	printf("out_file_name: '%s'.\n", out_file_name);
 			char* img_from_dir= malloc(name_size * sizeof(char));; // Base directory of image
 			sprintf(img_from_dir, "%s%s", TEXTURE_DIR, files[i]);
-			printf("img_from_dir: '%s'.\n", img_from_dir);int file_exists = Check_existing_image(out_file_name);
+			int file_exists = Check_existing_image(out_file_name);
 			if (file_exists) continue;
 		/* load of the input file */
 			//if (strcmp((const char*)image_format, (const char*)jpg_file) == 0 || strcmp((const char*)image_format, (const char*)jpeg_file) == 0) {
@@ -141,17 +138,13 @@ int Processa_contrast(int n_files, int index, char** files) {
 	/* output images */
 	gdImagePtr out_contrast_img;
 	/* Iteration over all the files to contrast images */
-    //puts("files in Processa_contrast:"); for (int i = 0; i < n_img; i++) puts(files[i]); // Dbg purpose; to delete
-
-	//printf("n_files: %d, index: %d.\n", n_files, index);
-	for (int i = index; i < index + n_files; i++) {
+    for (int i = index; i < index + n_files; i++) {
 		/* file name of the image created and to be saved on disk	 */
 		char* out_file_name = malloc(name_size * sizeof(char));
 		char* img_from_dir= malloc(name_size * sizeof(char));; // Base directory of image
 		sprintf(out_file_name, "%s%s", SMOOTH_DIR, files[i]);
 		//printf("out_file_name: '%s'\n", out_file_name);
 		sprintf(img_from_dir, "%s/%s", IMG_DIR, files[i]);
-		//printf("img_from_dir: '%s'.\n", img_from_dir);
 		int file_exists = Check_existing_image(out_file_name);
 		if (file_exists) continue;
 		printf("Contrast %s\n", files[i]);
@@ -188,9 +181,7 @@ int Processa_sepia(int n_files, int index, char** files) {
 	/* output images */
 	gdImagePtr out_sepia_img;
 	/* Iteration over all the files to create thumbnails from images*/
-    puts("files in Processa_sepia:"); for (int i = 0; i < n_img; i++) puts(files[i]); // Dbg purpose; to delete
-
-	for (int i = index; i < index + n_files; i++) {
+    for (int i = index; i < index + n_files; i++) {
 		/* file name of the image created and to be saved on disk	 */
 		char* out_file_name = malloc(name_size * sizeof(char));
 		char* img_from_dir= malloc(name_size * sizeof(char));; // Base directory of image

@@ -1,13 +1,12 @@
-/*************************************************************************************************************************************************
- * Programação Concorrente                                                                                                                       *
- * MEEC 22/23                                                                                                                                    *
- *                                                                                                                                               *    
- * Projecto - Parte A                                                                                                                            *                            
- *                           old-photo-parallel-A.c                                                                                              *
- *                                                                                                                                               *
- * Compilação: gcc -Wall -std=c11 -v -pedantic old-photo-parallel-A.c Processa_ficheiros.c image-lib.c -g -o old-photo-parallel-A -lpthread -lgd *
- *                                                                                                                                               *
- ************************************************************************************************************************************************/
+/****************************************************************************************************************************************************                                                                                                                          *
+ * LEEC 24/25                                                                                                                                       *
+ *                                                                                                                                                  *    
+ * Projecto - Parte A - Programação Concorrente                                                                                                                               *                            
+ *                           old-photo-parallel-A.c                                                                                                 *
+ *                                                                                                                                                  *
+ * Compilação: gcc -Wall -std=c11 -v old-photo-parallel-A.c Processa_ficheiros.c image-lib.c -g -o old-photo-parallel-A -lpthread -lgd-lrt -pthread *
+ *                                                                                                                                                  *
+ ***************************************************************************************************************************************************/
 
 #include "old-photo-parallel-A.h"
 
@@ -29,7 +28,19 @@ int main(int argc, char* argv[]) {
     Check_Input_Args(argc, argv);
     Check_Dirs();
     files = Read_Files_List();
+    /*puts("Before sorting:)"); // Dbg purpose; to delete
+    for (size_t i = 0; i < n_img; i++)
+    {
+     printf("'%s'", files[i]);
+    }
+    puts("\n");*/
     OrderFiles();
+    /*puts("After sorting:)"); // Dbg purpose; to delete
+     for (size_t i = 0; i < n_img; i++)
+    {
+     printf("'%s'", files[i]);
+    }
+    puts("\n");*/
     pthread_barrier_init(&bar, NULL, n_threads);
     thread_info* threads = Make_thread_info_array();
     FinishTimingSerial();
@@ -84,10 +95,10 @@ void* Check_Dirs() {
     sprintf(dir, "%s%s", IMG_DIR, CONTRAST_DIR);
      
     CONTRAST_DIR = dir;
-    printf("Contrast directory is: %s\n", CONTRAST_DIR);         // Dbg purpose; to delete 
-    if ((res = create_directory(CONTRAST_DIR)) == 0) {
-		printf("'%s' created.\n", CONTRAST_DIR);
-	} else if (res == 1) fprintf(stderr, "'%s' already exists.\n", CONTRAST_DIR);
+    //printf("Contrast directory is: %s\n", CONTRAST_DIR);         // No need for this folder
+    //if ((res = create_directory(CONTRAST_DIR)) == 0) {
+	//	printf("'%s' created.\n", CONTRAST_DIR);
+	//} else if (res == 1) fprintf(stderr, "'%s' already exists.\n", CONTRAST_DIR);
     dir = (char*)malloc((img_dir_len + strlen(SMOOTH_DIR) + 1) * sizeof(char));
     sprintf(dir, "%s%s", IMG_DIR, SMOOTH_DIR);
      
@@ -113,9 +124,6 @@ void* Check_Dirs() {
 }
 
 void* Check_Input_Args(int argc, char* argv[]) {
-    //printf("argv[0]: %s\n", argv[0]); // Dbg purpose; to delete
-    //printf("argv[1]: %s\n", argv[1]); // Dbg purpose; to delete
-    //printf("argv[2]: %s\n", argv[2]); // Dbg purpose; to delete
     const char* help = "Wrong calling. Usage example with 4 threads: './old-photo-parallel-A ./dir-1 4 -size (or -name)'. Exiting.";
     if (argc < 4) {
         puts(help);
@@ -129,15 +137,13 @@ void* Check_Input_Args(int argc, char* argv[]) {
             exit(-1);
         }
     }   
-    //printf("n_threads: %d\n", n_threads); // Dbg purpose; to delete
     OPTION = argv[3];
-    //printf("argv[3]: %s\n", OPTION);
     if (!n_threads) {
-        puts("Invalid positive number.");
+        fprintf(stderr, "Invalid positive number %s\n", argv[2]);
         puts(help);
         exit(-1);
     } else if ((strcmp(OPTION, "-size") != 0 ) && (strcmp(OPTION, "-name") != 0)) {
-        puts("Invalid image ordering option.");
+        fprintf(stderr, "Invalid image ordering option: %s\n", OPTION);
         puts(help);
         exit(-1);
     }
@@ -174,11 +180,11 @@ char** Read_Files_List() {
         Check_for_Images();
         while (fgets(img_name, name_size, fp) != 0) {
             img_file = strtok((char*)img_name, "\n");
+            img_name[strlen(img_name) - 1] = '\0';
             if (!img_file) break;
             char* file_format = strstr(img_file, image_format);
             if (file_format != NULL && !strcmp(file_format, image_format)) n_img++;
         }
-        printf("n_img: %d\n", n_img); // Dbg purpose; to delete
         rewind(fp);
         files = (char**)malloc(n_img * sizeof(char*));
         if (!files) {
@@ -190,8 +196,8 @@ char** Read_Files_List() {
         int i = 0;
         while (fgets(img_name, name_size, fp) != 0) { //perhaps 'fscanf' is a better option: fscanf(fp, "%s", img_name); 
             img_file = strtok((char*)img_name, "\n");
+            img_name[strlen(img_name) - 1] = '\0';
             if (!img_file) continue;
-            //printf("img_file: %s\n", img_file);  // Dbg purpose; to delete
             char* file_format = strstr(img_file, image_format);
             //printf("strstr: %s\n", file_format);  // Dbg purpose; to delete
             if (file_format != NULL && !strcmp(file_format, image_format)) {
@@ -202,7 +208,6 @@ char** Read_Files_List() {
                 } 
                 strcpy(files[i], img_file);
                 printf("Found image of '%s'.\n", files[i] );
-                //puts(files[i]); // Dbg purpose; to delete 
                 i++;
             }
         }
@@ -226,8 +231,6 @@ char** Read_Files_List() {
                     sprintf(img_name, "%s", entry->d_name);
                     img_name[sizeof(entry->d_name) - 1] = '\0';
                     if (Check_for_Extension(img_name, image_format)) {
-                        //printf("Found image of format: %s\n", image_format);
-                        //puts(img_name); // Dbg purpose; to delete
                         files[i] = (char*)malloc(name_size * sizeof(char));
                         if (!files[i]) {
                             printf("Cannot process %s. Skipping this one.\n", files[i]);
@@ -254,8 +257,6 @@ char** Read_Files_List() {
 }
 
 thread_info* Make_thread_info_array() {
-    //printf("Make..._array: n_threads = %d\n", n_threads);
-    //printf("Make..._array: n_img = %d\n", n_img);
     char** files_copy = (char**) malloc(n_img * sizeof(char*));
     for (int i = 0; i < n_img; i++) {
         files_copy[i] = (char*)malloc(100 * sizeof(char));
@@ -269,7 +270,6 @@ thread_info* Make_thread_info_array() {
     div_t files_separation = div(n_img, n_threads);
     int imgs_per_thread = (int)files_separation.quot;
     int imgs_remaining = (int)files_separation.rem;
-    printf("imgs_per_thread: %d; imgs_remaining: %d.\n", imgs_per_thread, imgs_remaining);
     if (imgs_per_thread == 0) {
         n_threads = n_img;
         printf("Less images than threads. Processing %d threads, one per image.\n", n_threads);
@@ -277,23 +277,17 @@ thread_info* Make_thread_info_array() {
             threads[i].n_files = 1;
             threads[i].search_index = i;
         }
-        for (int i = 0 ; i < n_threads; i++) 
-printf("threads[%d].n_files: %d; threads[%d].search_index: %d.\n", i, i, threads[i].n_files, threads[i].search_index);
-    
+        for (int i = 0 ; i < n_threads; i++)     
         return threads;
     }
     for (int i = 0 ; i < n_threads ; i++) {
         threads[i].n_files = imgs_per_thread;
         threads[i].search_index = imgs_per_thread * i;
-        //printf("Make..._array: n_files = %d\n", threads[i].n_files);
-        //printf("Make..._array: index = %d\n", threads[i].search_index);
-    }
+        }
     if (imgs_remaining != 0) {
         for (int i = 0 ; i < imgs_remaining; i++) {
             threads[i].n_files++;
             threads[i].search_index = threads[i].n_files * i;
-             //printf("Make..._array: n_files = %d\n", threads[i].n_files);
-    
         }
         
         for (int i = imgs_remaining; i < n_threads ; i++) {
@@ -302,8 +296,6 @@ printf("threads[%d].n_files: %d; threads[%d].search_index: %d.\n", i, i, threads
     
         }
     }
-        for (int i = 0 ; i < n_threads; i++) 
-printf("threads[%d].n_files: %d; threads[%d].search_index: %d.\n", i, threads[i].n_files, i, threads[i].search_index);
     return threads;
 }
 
@@ -335,9 +327,6 @@ bool Check_for_Images() {
             if (strcmp(entry->d_name, ".") == 0 || strcmp(entry->d_name, "..") == 0) continue;
              if (S_ISREG(st.st_mode)) {
                 sprintf(img_name, "%s", entry->d_name);
-                //strncpy(img_name, entry->d_name, sizeof(img_name)-1);
-               // img_name[sizeof(img_name) - 1] = '\0';
-                //printf("img_name: '%s'\n", img_name); // Dbg purpose; to delete
                 if (Check_for_Extension(entry->d_name, file_format[n_formats])) {
                     res = true;
                     image_format = (char*)file_format[n_formats];
@@ -368,9 +357,9 @@ _Bool Check_for_Extension(const char* filename, const char* ext) {
 }
 
 void* OrderFiles() {
-    if (strcmp(OPTION, "-size") != 0) {
+    if (strcmp(OPTION, "-size") == 0) {
         qsort(files, n_img, sizeof(char*), Compare_Size);
-    } else {
+    } else if (strcmp(OPTION, "-name") == 0) {
         qsort(files, n_img, sizeof(char*), Compare_Name);
     }
     return (void*)0;
@@ -378,13 +367,15 @@ void* OrderFiles() {
 
 int Compare_Size(const void* a, const void* b) {
     struct stat st_a, st_b;
-    stat((char*)a, &st_a);
-    stat((char*)b, &st_b);
-    return (st_a.st_size - st_b.st_size);
+    stat(*(char**)a, &st_a);
+    stat(*(char**)b, &st_b);
+    if (st_a.st_size > st_b.st_size) return 1;
+    if (st_a.st_size < st_b.st_size) return -1;
+    return 0;
 }
 
 int Compare_Name(const void* a, const void* b) {
-    return strcmp((char*)a, (char*)b);
+    return strcmp(*(const char**)a, *(const char**)b);
 }
 
 void* StartTiming() {

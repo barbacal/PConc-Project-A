@@ -259,7 +259,7 @@ int create_directory(char * dir_name){
 	if (d == NULL) {
 		//if (mkdir(dir_name, 0777)!=0){
 		int res;
-		fprintf(stderr, "%s: dir_name\n", dir_name);
+		//fprintf(stderr, "%s: dir_name\n", dir_name);
 		char mk_dir[100];
 		sprintf(mk_dir, "mkdir -p %s", dir_name);
 		if ((res = system(mk_dir)) != 0) {

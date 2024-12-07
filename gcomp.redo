@@ -1,3 +1,0 @@
-clear; gcc -Wall -std=c11 -v -pedantic ap-paralelo-1.c Processa_ficheiros.c image-lib.c  -g -o ap-paralelo-1 -lgd; ./ap-paralelo-1 Image-dir 3;
-clear; make clean-data; make clean; make all; ./ap-paralelo-1 Image-dir 3;
-valgrind --tool=callgrind ./ap-paralelo-1 Image-dir 3; kcachegrind callgrind.out*;

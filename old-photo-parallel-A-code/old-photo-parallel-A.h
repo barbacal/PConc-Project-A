@@ -51,8 +51,8 @@ char** files = 0;                 // array of images to process
 typedef struct thread_info {
     int search_index; // in the array of image names to process by thread
     int n_files;      // number of images to process by thread
-    pthread_barrier_t* barrier;
-    char** files;
+    pthread_barrier_t* barrier; // experimental for self learning
+    char** files;	
 } thread_info;
 
 void* Check_Input_Args(int argc, char* argv[]);
