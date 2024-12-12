@@ -147,7 +147,7 @@ int Processa_contrast(int n_files, int index, char** files) {
 		sprintf(img_from_dir, "%s/%s", IMG_DIR, files[i]);
 		int file_exists = Check_existing_image(out_file_name);
 		if (file_exists) continue;
-		printf("Contrast %s\n", files[i]);
+																																																																																																																																																								printf("Contrast %s\n", files[i]);
 		
 		//if (strcmp((const char*)image_format, (const char*)jpg_file) == 0 || strcmp((const char*)image_format, (const char*)jpeg_file) == 0) {
 			in_img = read_jpeg_file(img_from_dir);
