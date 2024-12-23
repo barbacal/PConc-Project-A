@@ -6,6 +6,8 @@ To clean (in the parent folder of old-photo-parallel-A-code: files *.o):
 	
 To clean (in the parent folder of old-photo-parallel-A-code: everything):
 	make clean-all -C old-photo-parallel-A-code/
+
+Run './run_all_A.sh' in old-photo-parallel-A to clean all and make
 	
 Code example:
 	./old-photo-parallel-A ./Dataset-1/ 7 -size
@@ -21,3 +23,4 @@ Important Notes:
 
 Other Notes:
 	Code refactoring of ap-paralelo-1, solved and resolved many issues of it.
+	GitHub repository: https://github.com/barbacal/PConc-Project-A
