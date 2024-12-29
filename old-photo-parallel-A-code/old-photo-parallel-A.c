@@ -155,7 +155,7 @@ void* Check_Input_Args(int argc, char* argv[]) {
 }
 
 char** Read_Files_List() {
-    const int name_size = 100; // maximum size in chars of an image filename
+    const int name_size = 1000; // maximum size in chars of an image filename
     files = (char**)malloc(name_size * sizeof(char*));
     bool isFileList = true;
     FILE* fp = 0;
@@ -244,7 +244,7 @@ char** Read_Files_List() {
 thread_info* Make_thread_info_array() {
     char** files_copy = (char**) malloc(n_img * sizeof(char*));
     for (int i = 0; i < n_img; i++) {
-        files_copy[i] = (char*)malloc(100 * sizeof(char));
+        files_copy[i] = (char*)malloc(1000 * sizeof(char));
         strcpy(files_copy[i], files[i]);
     }
     thread_info* threads = (thread_info*)calloc((size_t)n_threads, sizeof(thread_info));
@@ -294,7 +294,7 @@ bool Check_for_Images() {
     bool res = false;
     int n_formats = 2;
     const char* file_format[3] = {png_file, jpg_file, jpeg_file}; //Assumes either PNG, JPG or JPEG or empty folder
-    const int name_size = 100; // maximum size in chars of an image filename
+    const int name_size = 1000; // maximum size in chars of an image filename
     char img_name[name_size];
     DIR* dir;
  loop:  dir = opendir(IMG_DIR);
@@ -374,7 +374,7 @@ void* FinishTimingSerial() {
     struct timespec ser_time = diff_timespec(&end_time_ser, &start_time_ser);
     FILE *fp;
     char* timing = (char*)malloc(100 * sizeof(char));
-    timing_file = (char*)malloc(100 * sizeof(char));
+    timing_file = (char*)malloc(1000 * sizeof(char));
     sprintf(timing_file, "%s%s", IMG_DIR,"/timing_");
     timing_file = strcat(timing_file, "<");
     char* str_n_threads = (char*)malloc(3 * sizeof(char));

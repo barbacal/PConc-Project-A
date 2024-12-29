@@ -6,7 +6,7 @@
 #include <sys/stat.h>
 #include <unistd.h>
 
-const int name_size = 100;
+const int name_size = 1000;
 extern int n_img;
 extern char* image_format; 
 extern const char*  jpeg_file, jpg_file;
