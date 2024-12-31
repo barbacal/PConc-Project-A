@@ -59,11 +59,11 @@ void* Parallelize_Serial(thread_info* threads) {
     end_time_par = (struct timespec*) malloc(n_threads * sizeof(struct timespec));
     for (int i = 0; i < n_threads; i++) {
         clock_gettime(CLOCK_REALTIME, &start_time_par[i]);
-        printf("%dth thread creation.\n", i + 1); // Dbg purpose; to delete
+        //printf("%dth thread creation.\n", i + 1); // Dbg purpose; to delete
         pthread_create(&thread_id[i], 0, Processa_threads, &threads[i]);
     }
     for (int i = 0; i < n_threads; i++) {
-        printf("%dth thread junction.\n", i + 1); // Dbg purpose; to delete
+        //printf("%dth thread junction.\n", i + 1); // Dbg purpose; to delete
         pthread_join(thread_id[i], NULL/*&thread_ret*/);
         long int thr_id = pthread_self();
         clock_gettime(CLOCK_REALTIME, &end_time_par[i]);
@@ -256,13 +256,16 @@ thread_info* Make_thread_info_array() {
     int imgs_per_thread = (int)files_separation.quot;
     int imgs_remaining = (int)files_separation.rem;
     if (imgs_per_thread == 0) {
-        n_threads = n_img;
+        //n_threads = n_img;
         printf("Less images than threads. Processing %d threads, one per image.\n", n_threads);
-        for (int i = 0 ; i < n_threads; i++) {
+        for (int i = 0 ; i < n_img; i++) {
             threads[i].n_files = 1;
             threads[i].search_index = i;
         }
-        for (int i = 0 ; i < n_threads; i++)     
+        for (int i = n_img ; i < n_threads; i++) {
+            threads[i].n_files = 0;
+            threads[i].search_index = 0;
+        }    
         return threads;
     }
     for (int i = 0 ; i < n_threads ; i++) {

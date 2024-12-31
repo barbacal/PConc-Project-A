@@ -72,14 +72,14 @@ int Processa_texture(int n_files, int index, char** files) {
 		fprintf(stderr, "Impossible to read %s image. Skipping texturing.\n", "paper-texture.png");
 		texture_exists = false;
 	} else { puts("Texturing...");
-		char* out_file_name = malloc(name_size * sizeof(char));
+		/*char* out_file_name = malloc(name_size * sizeof(char));
 		sprintf(out_file_name, "%s%s", SEPIA_DIR, "paper-texture.png");
 		int file_exists = Check_existing_image(out_file_name);
 		if (!file_exists) {
 			if (!write_png_file(texture_img, out_file_name)) fprintf(stderr, "Impossible to write %s image\n", out_file_name);
     		texture_exists = false;
 		}
-		free(out_file_name);
+		free(out_file_name);*/
 	}
 	if (texture_exists) {
     	for (int i = index; i < index + n_files; i++) {	
