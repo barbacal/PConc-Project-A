@@ -40,7 +40,7 @@ bool finish = false;
 
 pthread_barrier_t bar; // barrier for threads
 
-int n_threads = 0;                // Default threads (besides main)
+int n_threads = 1;                // Default threads (besides main)
 const char* jpg_file = ".jpg\0";          // type of image format (in this case JPG)
 const char* jpeg_file = ".jpeg\0";        // type of image format (in this case JPEG)
 const char* png_file = ".png\0";          // type of image format (in this case PNG)

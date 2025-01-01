@@ -46,6 +46,7 @@ int main(int argc, char* argv[]) {
     FinishTimingSerial();
     Parallelize_Serial(threads);
     FreeAlloc();
+    free(threads);
     FinishTiming();
     puts("Done.");
     exit(0);
@@ -257,7 +258,7 @@ thread_info* Make_thread_info_array() {
     int imgs_remaining = (int)files_separation.rem;
     if (imgs_per_thread == 0) {
         //n_threads = n_img;
-        printf("Less images than threads. Processing %d threads, one per image.\n", n_threads);
+        //printf("Less images than threads. Processing %d threads, one per image.\n", n_threads);
         for (int i = 0 ; i < n_img; i++) {
             threads[i].n_files = 1;
             threads[i].search_index = i;
@@ -288,8 +289,11 @@ thread_info* Make_thread_info_array() {
 }
 
 void* FreeAlloc() {
+    for (int i = 0 ; i < n_threads ; i++) free(files[i]);
     free(files);
     pthread_barrier_destroy(&bar);
+    free(start_time_par);
+    free(end_time_par);
     return (void*)0;
 }
 
@@ -420,6 +424,8 @@ void* FinishTiming() {
     }
     fclose(fp);
     fp = 0;
+    free(timing);
+    free(timing_file);
     return (void*)0;
 }
 
